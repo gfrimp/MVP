@@ -84,7 +84,7 @@
                     try {
                         // Send to Cloud Function (replace with your actual Cloud Function URL)
                         //const token = "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRkNTMwMTIwNGZjMWQ2YTBkNjhjNzgzYTM1Y2M5YzEwYjI1ZTFmNGEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwiYXpwIjoiNjE4MTA0NzA4MDU0LTlyOXMxYzRhbGczNmVybGl1Y2hvOXQ1Mm4zMm42ZGdxLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiNjE4MTA0NzA4MDU0LTlyOXMxYzRhbGczNmVybGl1Y2hvOXQ1Mm4zMm42ZGdxLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTEwOTc1MDYxODk3NjYxMDI5NDc4IiwiaGQiOiJnb3lhemkuY29tIiwiZW1haWwiOiJnb2RmcmVkQGdveWF6aS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXRfaGFzaCI6IlpfNGM2S2NPY19QaV9lUFdsamptRkEiLCJuYmYiOjE3NTQyNDU5NDYsImlhdCI6MTc1NDI0NjI0NiwiZXhwIjoxNzU0MjQ5ODQ2LCJqdGkiOiIwNTRmNzFjZjVlNTY0MzEzYTJlOGU1NWVhNmEzNjFkODE3NmU0OThmIn0.tHcQ-Gr4c-PSB-a3cAyMpmCQXt2_ahx8OHa43ZpPUQ0C-ueY5xLSGNyeri2JAzXhd4UhiFb1nf2fraQAzBw2q-N7UMmJo5IgMJdQ4my1OItIBMNg-sb6riqKom1XA88qHVVwjf9S-ETJelwkR8uCsJcKqsInql01-u7sPEsfkwKADm6gDfXzJDjrtcBI8fLzKQNeufsgBWyZh9M3nmYdnOSSaRoWLaiR1OnxPwI72DcWbR383i_m4jf-BGBCerVdWHo5ooRjAP9SfWDQN4_ohj30OwOD0_5i5fGptQRkFJY3oreD8FZjNEnHNWdWBl6tqTTinObDBZBBzSjeYbCrag";
-                        const response = await fetch('https://mvp-1-555954816336.europe-west1.run.app', {
+                        const response = await fetch('https://mvp-1-555954816336.europe-west1.run.app/compare_text_image', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' }, //, 'Authorization': `Bearer ${token}`},
                             body: JSON.stringify({
