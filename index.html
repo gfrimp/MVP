@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Problem Statement and Image Comparison</title>
+    <title>Image-Only Analysis Prototype</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -14,10 +14,6 @@
         <div class="bg-white p-6 rounded-lg shadow-md mb-8">
             <form id="comparisonForm" class="space-y-6" onsubmit="handleSubmit(event)">
                 <div>
-                    <label for="problemText" class="block text-lg font-medium text-gray-700">Enter Problem Description</label>
-                    <textarea id="problemText" rows="5" class="mt-2 w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Describe the problem here..." required></textarea>
-                </div>
-                <div>
                     <label for="imageUpload" class="block text-lg font-medium text-gray-700">Upload Image</label>
                     <input type="file" id="imageUpload" accept="image/*" class="mt-2 w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     <div id="imagePreview" class="mt-4 hidden">
@@ -25,7 +21,7 @@
                     </div>
                 </div>
                 <button type="submit" id="submitButton" class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition duration-200 flex items-center justify-center">
-                    <span id="buttonText">Test Comparison</span>
+                    <span id="buttonText">Analyze Image</span>
                     <svg id="loadingSpinner" class="animate-spin h-5 w-5 ml-2 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -36,7 +32,7 @@
 
         <!-- Results Section -->
         <div id="resultsSection" class="bg-white p-6 rounded-lg shadow-md hidden">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Comparison Results</h2>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Analysis Results</h2>
             <div id="resultContent" class="text-gray-700 space-y-4">
                 <!-- Results will be populated here -->
             </div>
@@ -61,7 +57,6 @@
         // Handle form submission
         async function handleSubmit(event) {
             event.preventDefault();
-            const problemText = document.getElementById('problemText').value;
             const imageFile = document.getElementById('imageUpload').files[0];
             const resultsSection = document.getElementById('resultsSection');
             const resultContent = document.getElementById('resultContent');
@@ -69,7 +64,7 @@
             const buttonText = document.getElementById('buttonText');
             const loadingSpinner = document.getElementById('loadingSpinner');
 
-            if (problemText && imageFile) {
+            if (imageFile) {
                 // Show loading animation
                 submitButton.disabled = true;
                 buttonText.textContent = 'Processing...';
@@ -80,8 +75,8 @@
                 reader.readAsDataURL(imageFile);
                 reader.onload = async function() {
                     const base64Image = reader.result.split(',')[1]; // Remove data:image/*;base64, prefix
-                    const payload = { text: problemText, image: base64Image };
-                    console.log('Sending payload:', { text: problemText, image: base64Image.substring(0, 50) + '...' });
+                    const payload = { image: base64Image };
+                    console.log('Sending payload:', { image: base64Image.substring(0, 50) + '...' });
 
                     try {
                         // Send to Cloud Function
@@ -102,7 +97,6 @@
                         } else {
                             // Display results
                             resultContent.innerHTML = `
-                                <p><strong>Problem Description:</strong> ${problemText}</p>
                                 <p><strong>Image Analysis:</strong> ${result.analysis || 'No analysis provided'}</p>
                                 <p><strong>Similarity Score:</strong> ${result.score !== undefined ? result.score + '%' : 'N/A'}</p>
                             `;
@@ -115,7 +109,7 @@
                     } finally {
                         // Reset button state
                         submitButton.disabled = false;
-                        buttonText.textContent = 'Test Comparison';
+                        buttonText.textContent = 'Analyze Image';
                         loadingSpinner.classList.add('hidden');
                     }
                 };
