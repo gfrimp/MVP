@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image-Only Analysis Prototype</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto p-6 max-w-4xl">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Prototype</h1>
+    
+    <!-- Form Section -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <form id="comparisonForm" class="space-y-6" onsubmit="handleSubmit(event)">
+        <!-- Upload Image -->
+        <div>
+          <label for="imageUpload" class="block text-lg font-medium text-gray-700">Upload Image</label>
+          <input type="file" id="imageUpload" accept="image/*" class="mt-2 w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+          <div id="imagePreview" class="mt-4 hidden">
+            <img id="previewImg" class="max-w-xs rounded-md" alt="Image Preview">
+          </div>
+        </div>
+
+        <!-- Standard Name Dropdown -->
+        <div>
+          <label for="standardNameSelect" class="block text-lg font-medium text-gray-700">Standard Name</label>
+          <select id="standardNameSelect" class="mt-2 w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Loading standards...</option>
+          </select>
+        </div>
+
+        <!-- Deficiency Dropdown -->
+        <div>
+          <label for="deficiencySelect" class="block text-lg font-medium text-gray-700">Deficiency</label>
+          <select id="deficiencySelect" class="mt-2 w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Loading deficiencies...</option>
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label for="notes" class="block text-lg font-medium text-gray-700">Notes</label>
+          <textarea id="notes" rows="4" class="mt-2 w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter additional notes..."></textarea>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="submitButton" class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+          <span id="buttonText">Analyze Image</span>
+          <svg id="loadingSpinner" class="animate-spin h-5 w-5 ml-2 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultsSection" class="bg-white p-6 rounded-lg shadow-md hidden">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Analysis Results</h2>
+      <div id="resultContent" class="text-gray-700 space-y-4"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://mvp-1-555954816336.europe-west1.run.app"; // replace if different
+
+    // Fetch standards + deficiencies on load
+    async function fetchFormOptions() {
+      try {
+        const response = await fetch(API_URL + "/options"); 
+        // Expecting response like: { standards: ["Std1","Std2"], deficiencies: ["Crack","Mold","Leak"] }
+        const data = await response.json();
+
+        // Populate standard names
+        const standardSelect = document.getElementById("standardNameSelect");
+        standardSelect.innerHTML = '<option value="">-- Select a standard --</option>';
+        data.standards.forEach(std => {
+          const option = document.createElement("option");
+          option.value = std;
+          option.textContent = std;
+          standardSelect.appendChild(option);
+        });
+
+        // Populate deficiencies
+        const deficiencySelect = document.getElementById("deficiencySelect");
+        deficiencySelect.innerHTML = '<option value="">-- Select a deficiency --</option>';
+        data.deficiencies.forEach(def => {
+          const option = document.createElement("option");
+          option.value = def;
+          option.textContent = def;
+          deficiencySelect.appendChild(option);
+        });
+      } catch (err) {
+        console.error("Error fetching options:", err);
+        document.getElementById("standardNameSelect").innerHTML = '<option>Error loading</option>';
+        document.getElementById("deficiencySelect").innerHTML = '<option>Error loading</option>';
+      }
+    }
+
+    // Handle image preview
+    document.getElementById('imageUpload').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('previewImg');
+          preview.src = e.target.result;
+          document.getElementById('imagePreview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Handle form submission
+    async function handleSubmit(event) {
+      event.preventDefault();
+      const imageFile = document.getElementById('imageUpload').files[0];
+      const standardName = document.getElementById('standardNameSelect').value;
+      const deficiency = document.getElementById('deficiencySelect').value;
+      const notes = document.getElementById('notes').value.trim();
+
+      const resultsSection = document.getElementById('resultsSection');
+      const resultContent = document.getElementById('resultContent');
+      const submitButton = document.getElementById('submitButton');
+      const buttonText = document.getElementById('buttonText');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+
+      if (imageFile) {
+        submitButton.disabled = true;
+        buttonText.textContent = 'Processing...';
+        loadingSpinner.classList.remove('hidden');
+
+        const reader = new FileReader();
+        reader.readAsDataURL(imageFile);
+        reader.onload = async function() {
+          const base64Image = reader.result.split(',')[1];
+          const payload = {
+            image: base64Image,
+            standard_name: standardName,
+            deficiency: deficiency,
+            notes: notes
+          };
+          console.log('Sending payload:', payload);
+
+          try {
+            const response = await fetch(API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            console.log('Response body:', result);
+
+            if (result.error || !response.ok) {
+              resultContent.innerHTML = `<p class="text-red-500">Error: ${result.error || 'Server returned status ' + response.status}</p>`;
+            } else {
+              resultContent.innerHTML = `
+                <p><strong>HUD Standard:</strong> ${result.hud_standard || standardName || 'N/A'}</p>
+                <p><strong>Deficiency:</strong> ${result.deficiency || deficiency || 'N/A'}</p>
+                <p><strong>Notes:</strong> ${notes || 'N/A'}</p>
+              `;
+            }
+            resultsSection.classList.remo
