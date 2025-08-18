@@ -154,6 +154,9 @@ function populateFormFields(result) {
   // Standard name (just text field)
   document.getElementById("standardName").value = result.hud_standard || "";
 
+  // Notes name
+  document.getElementById("notes").value = result.description || "";
+
   // Deficiencies (dropdown from array)
   const deficiencySelect = document.getElementById("deficiencySelect");
   deficiencySelect.innerHTML = '<option value="">-- Select a deficiency --</option>';
