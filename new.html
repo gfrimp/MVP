@@ -129,25 +129,49 @@
     }
 
     // Fill fields based on API response
-    function populateFormFields(result) {
-      // Standard name (just text field)
-      document.getElementById("standardName").value = result.hud_standard || "";
+    // function populateFormFields(result) {
+    //   // Standard name (just text field)
+    //   document.getElementById("standardName").value = result.hud_standard || "";
 
-      // Deficiencies
-      const deficiencySelect = document.getElementById("deficiencySelect");
-      deficiencySelect.innerHTML = '<option value="">-- Select a deficiency --</option>';
-      if (result.deficiencies && Array.isArray(result.deficiencies)) {
-        result.deficiencies.forEach(def => {
-          const option = document.createElement("option");
-          option.value = def;
-          option.textContent = def;
-          deficiencySelect.appendChild(option);
-        });
-        if (result.deficiency) {
-          deficiencySelect.value = result.deficiency;
-        }
-      }
+    //   // Deficiencies
+    //   const deficiencySelect = document.getElementById("deficiencySelect");
+    //   deficiencySelect.innerHTML = '<option value="">-- Select a deficiency --</option>';
+    //   if (result.deficiencies && Array.isArray(result.deficiencies)) {
+    //     result.deficiencies.forEach(def => {
+    //       const option = document.createElement("option");
+    //       option.value = def;
+    //       option.textContent = def;
+    //       deficiencySelect.appendChild(option);
+    //     });
+    //     if (result.deficiency) {
+    //       deficiencySelect.value = result.deficiency;
+    //     }
+    //   }
+    // }
+
+    // Fill fields based on API response
+function populateFormFields(result) {
+  // Standard name (just text field)
+  document.getElementById("standardName").value = result.hud_standard || "";
+
+  // Deficiencies (dropdown from array)
+  const deficiencySelect = document.getElementById("deficiencySelect");
+  deficiencySelect.innerHTML = '<option value="">-- Select a deficiency --</option>';
+
+  if (result.deficiencies && Array.isArray(result.deficiencies)) {
+    result.deficiencies.forEach(def => {
+      const option = document.createElement("option");
+      option.value = def;
+      option.textContent = def;
+      deficiencySelect.appendChild(option);
+    });
+    // Optionally auto-select the first deficiency
+    if (result.deficiencies.length > 0) {
+      deficiencySelect.value = result.deficiencies[0];
     }
+  }
+}
+
   </script>
 </body>
 </html>
